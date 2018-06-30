@@ -145,14 +145,14 @@ void UKF::Prediction(double delta_t) {
   */
   
   VectorXd x_aug = VectorXd(n_aug_);
-
-  x_aug.head(n_x_) = x_;
+  
+  x_aug.head(5) = x_;
   x_aug(5) = 0;
   x_aug(6) = 0;
  
   MatrixXd P_aug = MatrixXd(n_aug_, n_aug_);
   P_aug.fill(0.0);
-  P_aug.topLeftCorner(n_x_, n_x_) = P_;
+  P_aug.topLeftCorner(5, 5) = P_;
   P_aug(5,5) = std_a_ * std_a_;
   P_aug(6,6) = std_yawdd_ * std_yawdd_;
 
