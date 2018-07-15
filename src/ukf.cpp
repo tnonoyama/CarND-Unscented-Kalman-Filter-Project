@@ -55,8 +55,11 @@ UKF::UKF() {
   Hint: one or more values initialized above might be wildly off...
   */
   
+  // time when the state is true, in us
+  time_us_ = 0.0;
+
   ///* State dimension
-  //n_x_ = 5;
+  n_x_ = 5;
   
   ///* Augmented state dimension
   n_aug_ = 7;
@@ -70,12 +73,12 @@ UKF::UKF() {
   //predict mean and covariance
   //set weights
   VectorXd weights_ = VectorXd(2 * n_aug_ +1);
-  double weight_0 = lambda_ / (lambda_ + n_aug_);
-  weights_(0) = weight_0;
-  for (int i = 1; i < 2 * n_aug_ + 1; i++) {
-    double weight = 0.5 / (n_aug_ + lambda_);
-    weights_(i) = weight;
-    }
+  //double weight_0 = lambda_ / (lambda_ + n_aug_);
+  //weights_(0) = weight_0;
+  //for (int i = 1; i < 2 * n_aug_ + 1; i++) {
+  //  double weight = 0.5 / (n_aug_ + lambda_);
+  //  weights_(i) = weight;
+  //  }
 }
 
 UKF::~UKF() {}
@@ -143,9 +146,10 @@ void UKF::Prediction(double delta_t) {
   Complete this function! Estimate the object's location. Modify the state
   vector, x_. Predict sigma points, the state, and the state covariance matrix.
   */
-  
+ 
   VectorXd x_aug = VectorXd(n_aug_);
   
+  x_aug.fill(0.0);
   x_aug.head(5) = x_;
   x_aug(5) = 0;
   x_aug(6) = 0;
@@ -160,6 +164,9 @@ void UKF::Prediction(double delta_t) {
   
   MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 
   Xsig_aug.col(0) = x_aug;
+
+  lambda_ = 3 - n_aug_;
+
   for (int i = 0; i < n_aug_; i++)
   {
     Xsig_aug.col(i + 1) = x_aug + sqrt(lambda_ + n_aug_) * L.col(i);
@@ -214,12 +221,12 @@ void UKF::Prediction(double delta_t) {
 
   //predict mean and covariance
   //set weights
-  //double weight_0 = lambda_ / (lambda_ + n_aug_);
-  //weights_(0) = weight_0;
-  //for (int i = 1; i < 2 * n_aug_ + 1; i++) {
-  //  double weight = 0.5 / (n_aug_ + lambda_);
-  //  weights_(i) = weight;
-  //}
+  double weight_0 = lambda_ / (lambda_ + n_aug_);
+  weights_(0) = weight_0;
+  for (int i = 1; i < 2 * n_aug_ + 1; i++) {
+    double weight = 0.5 / (n_aug_ + lambda_);
+    weights_(i) = weight;
+  }
 
   //predicted state mean
   x_.fill(0.0);
@@ -255,6 +262,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 
   You'll also need to calculate the lidar NIS.
   */
+
   int n_z = 2; //Measuremnt dimension for Laser
   
   //Create ,trox for sigma points  in measurement space
@@ -348,6 +356,9 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
   You'll also need to calculate the radar NIS.
   */
+
+  n_x_ = 5;
+  n_aug_ = 7;
 
   //set measurement dimension, radar can measure r, phi, and r_dot
   int n_z = 3;
