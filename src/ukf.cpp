@@ -25,10 +25,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 30;
+  std_a_ = 3;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 30;
+  std_yawdd_ = 1;
   
   //DO NOT MODIFY measurement noise values below these are provided by the sensor manufacturer.
   // Laser measurement noise standard deviation position1 in m
@@ -67,18 +67,18 @@ UKF::UKF() {
   ///* Sigma point spreading parameter
   lambda_ = 3 - n_aug_;
 
-  MatrixXd Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
-  Xsig_pred_.setZero();
+  Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
+
 
   //predict mean and covariance
   //set weights
-  VectorXd weights_ = VectorXd(2 * n_aug_ +1);
-  //double weight_0 = lambda_ / (lambda_ + n_aug_);
-  //weights_(0) = weight_0;
-  //for (int i = 1; i < 2 * n_aug_ + 1; i++) {
-  //  double weight = 0.5 / (n_aug_ + lambda_);
-  //  weights_(i) = weight;
-  //  }
+  weights_ = VectorXd(2 * n_aug_ +1);
+  double weight_0 = lambda_ / (lambda_ + n_aug_);
+  weights_(0) = weight_0;
+  for (int i = 1; i < 2 * n_aug_ + 1; i++) {
+    double weight = 0.5 / (n_aug_ + lambda_);
+    weights_(i) = weight;
+    }
 }
 
 UKF::~UKF() {}
@@ -221,12 +221,12 @@ void UKF::Prediction(double delta_t) {
 
   //predict mean and covariance
   //set weights
-  double weight_0 = lambda_ / (lambda_ + n_aug_);
-  weights_(0) = weight_0;
-  for (int i = 1; i < 2 * n_aug_ + 1; i++) {
-    double weight = 0.5 / (n_aug_ + lambda_);
-    weights_(i) = weight;
-  }
+  //double weight_0 = lambda_ / (lambda_ + n_aug_);
+  //weights_(0) = weight_0;
+  //for (int i = 1; i < 2 * n_aug_ + 1; i++) {
+  //  double weight = 0.5 / (n_aug_ + lambda_);
+  //  weights_(i) = weight;
+  //}
 
   //predicted state mean
   x_.fill(0.0);
