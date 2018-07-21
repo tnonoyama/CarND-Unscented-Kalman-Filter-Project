@@ -25,7 +25,7 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 0.5;
+  std_a_ = 1.5; 
 
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_ = 0.25;
@@ -194,8 +194,8 @@ void UKF::Prediction(double delta_t) {
         py_p = p_y + v / yawd * ( cos(yaw) - cos(yaw + yawd * delta_t));
     }
     else {
-        px_p = p_x + v * delta_t * delta_t * cos(yaw);
-        py_p = p_y + v * delta_t * delta_t * sin(yaw);
+        px_p = p_x + v * delta_t * cos(yaw);
+        py_p = p_y + v * delta_t * sin(yaw);
     }
 
     double v_p = v;
@@ -203,8 +203,8 @@ void UKF::Prediction(double delta_t) {
     double yawd_p = yawd;
 
     //add noise
-    px_p = px_p + 0.5 * nu_a * delta_t * cos(yaw);
-    py_p = py_p + 0.5 * nu_a * delta_t * sin(yaw);
+    px_p = px_p + 0.5 * nu_a * delta_t * delta_t * cos(yaw);
+    py_p = py_p + 0.5 * nu_a * delta_t * delta_t * sin(yaw);
     v_p = v_p + nu_a * delta_t;
 
     yaw_p = yaw_p + 0.5 * nu_yawdd * delta_t * delta_t;
