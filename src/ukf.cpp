@@ -65,6 +65,7 @@ UKF::UKF() {
   n_aug_ = 7;
   
   ///* Sigma point spreading parameter
+//  lambda_ = 3 - n_x_;
   lambda_ = 3 - n_aug_;
 
   Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
@@ -100,7 +101,13 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       float phi = meas_package.raw_measurements_[1];
       float px = rho * cos(phi);
       float py = rho * sin(phi);
-      x_ << px, py, 0, 0, 0;
+      //x_ << px, py, 0, 0, 0;
+      float rho_dot = meas_package.raw_measurements_[2];
+      float v_x = rho_dot * cos(phi);
+      float v_y = rho_dot * sin(phi);
+      float vx = sqrt(v_x*v_x + v_y*v_y ); 
+      float vy = atan2(v_x,v_y); 
+      x_ << px, py, vx, vy, 0;
     }
 
   P_ << 1, 0, 0, 0, 0,
@@ -146,6 +153,19 @@ void UKF::Prediction(double delta_t) {
   Complete this function! Estimate the object's location. Modify the state
   vector, x_. Predict sigma points, the state, and the state covariance matrix.
   */
+
+  // Define sigma point matrix Xsig
+  MatrixXd Xsig = MatrixXd(n_x_, 2 * n_aug_ + 1);
+  //create square root matrix
+  MatrixXd M = P_.llt().matrixL();
+
+  // Create sigma point matrix Xsig
+  Xsig.col(0)  = x_;
+  for (int i = 0; i< n_x_; i++)
+  {
+    Xsig.col( i + 1)       = x_ + sqrt(lambda_ + n_x_) * M.col(i);
+    Xsig.col(i + 1 + n_x_) = x_ - sqrt(lambda_ + n_x_) * M.col(i);
+  }
  
   VectorXd x_aug = VectorXd(n_aug_);
   
@@ -162,10 +182,10 @@ void UKF::Prediction(double delta_t) {
 
   MatrixXd L = P_aug.llt().matrixL();
   
-  MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1); 
+  MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
   Xsig_aug.col(0) = x_aug;
 
-  lambda_ = 3 - n_aug_;
+//  lambda_ = 3 - n_aug_;
 
   for (int i = 0; i < n_aug_; i++)
   {
@@ -221,12 +241,12 @@ void UKF::Prediction(double delta_t) {
 
   //predict mean and covariance
   //set weights
-  //double weight_0 = lambda_ / (lambda_ + n_aug_);
-  //weights_(0) = weight_0;
-  //for (int i = 1; i < 2 * n_aug_ + 1; i++) {
-  //  double weight = 0.5 / (n_aug_ + lambda_);
-  //  weights_(i) = weight;
-  //}
+//  double weight_0 = lambda_ / (lambda_ + n_aug_);
+//  weights_(0) = weight_0;
+//  for (int i = 1; i < 2 * n_aug_ + 1; i++) {
+//    double weight = 0.5 / (n_aug_ + lambda_);
+//    weights_(i) = weight;
+//  }
 
   //predicted state mean
   x_.fill(0.0);
@@ -357,8 +377,8 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   You'll also need to calculate the radar NIS.
   */
 
-  n_x_ = 5;
-  n_aug_ = 7;
+//  n_x_ = 5;
+//  n_aug_ = 7;
 
   //set measurement dimension, radar can measure r, phi, and r_dot
   int n_z = 3;
