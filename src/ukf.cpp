@@ -228,7 +228,7 @@ void UKF::Prediction(double delta_t) {
     v_p = v_p + nu_a * delta_t;
 
     yaw_p = yaw_p + 0.5 * nu_yawdd * delta_t * delta_t;
-    yawd_p = yawd_p + nu_yawdd + delta_t;
+    yawd_p = yawd_p + nu_yawdd * delta_t;
 
     //write predcted sigma point into right column
     //MatrixXd Xsig_pred = MatrixXd(n_x_, 2 * n_aug_ + 1);
